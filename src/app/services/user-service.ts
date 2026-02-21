@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class UserService {
-  private userApi = 'http://localhost:8080/api/user';
+  private userApi = 'https://spice-backend-production.up.railway.app/api/user';
 
   constructor(private http: HttpClient) {}
 
