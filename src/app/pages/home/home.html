@@ -1,0 +1,188 @@
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="nav-container">
+    <div class="logo">
+      <img src="img/logo.png" alt="Yussuf Spice Booking">
+      
+    </div>
+
+    <div class="menu-toggle" (click)="toggleMenu()">☰</div>
+
+    <nav [class.open]="menuOpen">
+      <a href="#">Home</a>
+      <a href="#about">About</a>
+      <a href="#service">service</a>
+      <a href="#">Bookings</a>
+      <a href="#">Contact</a>
+
+      <div class="login">
+        <a (click)="openLogin()">login</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+
+<!-- HERO CAROUSEL -->
+<section class="hero">
+  <div
+    class="slide"
+    *ngFor="let slide of slides; let i = index"
+    [class.active]="i === currentSlide"
+    [style.backgroundImage]="'url(' + slide.image + ')'"
+  >
+    <div class="overlay">
+      <h1>{{ slide.title }}</h1>
+      <p>{{ slide.text }}</p>
+       <a href="#booking"><button>Start Booking</button></a>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span (click)="prevSlide()">‹</span>
+    <span (click)="nextSlide()">›</span>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <h2>About Yussuf Spice Booking</h2>
+  <p>
+    Yussuf Spice Booking is a professional digital platform designed to simplify
+    spice reservations and supplier connections. We ensure quality, transparency,
+    and efficiency in every booking.
+  </p>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="card">
+    <h3>Easy Booking</h3>
+    <p>Reserve spices quickly using our simple booking process.</p>
+  </div>
+
+  <div class="card">
+    <h3>Premium Quality</h3>
+    <p>Only verified suppliers and authentic spices.</p>
+  </div>
+
+  <div class="card">
+    <h3>Secure Platform</h3>
+    <p>Safe and reliable system for all transactions.</p>
+  </div>
+
+  <div class="card">
+    <h3>Customer Support</h3>
+    <p>We are always ready to help you.</p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="#booking">
+  <h2>Book Your Spices With Confidence</h2>
+  <button>Get Started Now</button>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Yussuf Spice Booking. All rights reserved.</p>
+</footer>
+
+
+<!-- LOGIN MODAL -->
+<div class="modal" *ngIf="showLoginModal">
+  <div class="modal-content">
+    <span class="close" (click)="closeModals()">×</span>
+    <h2>Login</h2>
+
+    <form (ngSubmit)="submitLogin()">
+      <input
+        type="text"
+        placeholder="Username"
+        [(ngModel)]="loginData.username"
+        name="username"
+        required
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        [(ngModel)]="loginData.password"
+        name="password"
+        required
+      />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <p>
+      Don't have an account?
+      <a (click)="openRegister()">Register</a>
+    </p>
+    <div class="message success" *ngIf="loginMessage">
+  {{ loginMessage }}
+</div>
+
+<div class="message error" *ngIf="loginError">
+  {{ loginError }}
+</div>
+  </div>
+</div>
+
+
+<!-- REGISTER MODAL -->
+<div class="modal" *ngIf="showRegisterModal">
+  <div class="modal-content">
+    <span class="close" (click)="closeModals()">×</span>
+    <h2>Register</h2>
+
+    <form (ngSubmit)="submitRegister()">
+      <input
+        type="text"
+        placeholder="Full Name"
+        [(ngModel)]="registerData.name"
+        name="name"
+        required
+      />
+
+      <input
+        type="text"
+        placeholder="Username"
+        [(ngModel)]="registerData.username"
+        name="username"
+        required
+      />
+
+      <input
+        type="email"
+        placeholder="Email"
+        [(ngModel)]="registerData.email"
+        name="email"
+        required
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        [(ngModel)]="registerData.password"
+        name="password"
+        required
+      />
+
+      <button type="submit">Register</button>
+    </form>
+
+    <p>
+      Already have an account?
+      <a (click)="openLogin()">Login</a>
+    </p>
+    <div class="message success" *ngIf="registerMessage">
+  {{ registerMessage }}
+</div>
+<div class="message error" *ngIf="registerError">
+  {{ registerError }}
+</div>
+  </div>
+</div>
+
+

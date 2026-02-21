@@ -1,0 +1,88 @@
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+  background: #f4f6f8;
+}
+
+.sidebar {
+  width: 240px;
+  background: #0f3d3e;
+  color: white;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+.sidebar h2 {
+  color: #f1c40f;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px;
+  cursor: pointer;
+}
+
+.sidebar li.active {
+  background: #f1c40f;
+  color: #000;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  background: #f1c40f;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.review {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}

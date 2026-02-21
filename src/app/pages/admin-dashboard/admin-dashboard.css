@@ -1,0 +1,287 @@
+:root {
+  --spice-red: #c0392b;
+  --spice-orange: #e67e22;
+  --spice-green: #27ae60;
+  --dark: #1f1f1f;
+  --light: #f4f6f8;
+  --white: #ffffff;
+}
+
+/* LAYOUT */
+.admin-container {
+  display: flex;
+  height: 100vh;
+  background: var(--light);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: var(--dark);
+  color: white;
+  transition: width 0.3s ease;
+}
+
+.sidebar.closed {
+  width: 70px;
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: var(--spice-red);
+  text-align: center;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu li {
+  padding: 15px 20px;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+}
+
+.menu li:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.menu li.active {
+  background: rgba(255,255,255,0.12);
+  border-left: 4px solid var(--spice-orange);
+  color: var(--spice-orange);
+}
+
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.toggle-btn {
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* DASHBOARD CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  font-size: 1.1rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    height: 100%;
+    z-index: 1000;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+}
+
+/* USER TABLE */
+.table-wrapper {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.user-table th,
+.user-table td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.user-table thead {
+  background: var(--spice-red);
+  color: white;
+}
+
+.user-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.user-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+/* ROLE BADGE */
+.role {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  background: #ddd;
+}
+
+.role.admin {
+  background: var(--spice-orange);
+  color: white;
+}
+
+/* ACTION BUTTONS */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+button.edit {
+  background: var(--spice-green);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.delete {
+  background: var(--spice-red);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* ADD GUIDE BUTTON */
+.add-guide-btn {
+  margin-bottom: 15px;
+  padding: 4px 7px;
+  background: #2c7be5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-guide-btn:hover {
+  background: #1a5ec8;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+/* BACKDROP */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* MODAL BOX */
+.modal-box {
+  position: relative;
+  background: #fff;
+  width: 90%;
+  max-width: 400px;
+  margin: 8% auto;
+  padding: 25px;
+  border-radius: 10px;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* FORM */
+.modal-box form {
+  display: grid;
+  gap: 12px;
+}
+
+.modal-box input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.modal-box button {
+  background: #2c7be5;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-box button:hover {
+  background: #1a5ec8;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.message {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.success {
+  background: #e6f4ea;
+  color: #1e7e34;
+  border: 1px solid #b7e1c1;
+}
+
+.error {
+  background: #fdecea;
+  color: #c82333;
+  border: 1px solid #f5c6cb;
+}

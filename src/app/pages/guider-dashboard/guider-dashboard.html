@@ -1,0 +1,72 @@
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.closed]="!sidebarOpen">
+    <h2>Guide Panel</h2>
+
+    <ul>
+      <li (click)="setTab('dashboard')" [class.active]="activeTab==='dashboard'">Dashboard</li>
+      <li (click)="setTab('tours')" [class.active]="activeTab==='tours'">My Tours</li>
+      <li (click)="setTab('bookings')" [class.active]="activeTab==='bookings'">My Bookings</li>
+      <li (click)="setTab('reviews')" [class.active]="activeTab==='reviews'">Reviews</li>
+      <li (click)="setTab('profile')" [class.active]="activeTab==='profile'">Profile</li>
+    </ul>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="top-bar">
+      <button (click)="toggleSidebar()">☰</button>
+      <h1>{{ activeTab | titlecase }}</h1>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section *ngIf="activeTab==='dashboard'" class="cards">
+      <div class="card">My Tours<br><strong>{{ myTours.length }}</strong></div>
+      <div class="card">Bookings<br><strong>{{ myBookings.length }}</strong></div>
+      <div class="card">Reviews<br><strong>{{ reviews.length }}</strong></div>
+    </section>
+
+    <!-- MY TOURS -->
+    <section *ngIf="activeTab==='tours'">
+      <h2>My Tours</h2>
+      <table>
+        <tr><th>Name</th><th>Status</th></tr>
+        <tr *ngFor="let tour of myTours">
+          <td>{{ tour.name }}</td>
+          <td>{{ tour.status }}</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- BOOKINGS -->
+    <section *ngIf="activeTab==='bookings'">
+      <h2>My Bookings</h2>
+      <table>
+        <tr><th>Customer</th><th>Date</th><th>Status</th></tr>
+        <tr *ngFor="let b of myBookings">
+          <td>{{ b.customer }}</td>
+          <td>{{ b.date }}</td>
+          <td>{{ b.status }}</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- REVIEWS -->
+    <section *ngIf="activeTab==='reviews'">
+      <h2>Reviews</h2>
+      <div class="review" *ngFor="let r of reviews">
+        <strong>{{ r.user }}</strong> ⭐{{ r.rating }}
+        <p>{{ r.comment }}</p>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section *ngIf="activeTab==='profile'">
+      <h2>My Profile</h2>
+      <p>Guide anaweza kubadilisha taarifa zake hapa.</p>
+    </section>
+
+  </main>
+</div>

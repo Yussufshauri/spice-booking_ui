@@ -1,0 +1,162 @@
+<div class="admin-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.closed]="!sidebarOpen">
+    <div class="sidebar-header">
+      <h2>Admin Panel</h2>
+    </div>
+
+    <ul class="menu">
+      <li 
+        (click)="setTab('dashboard')" 
+        [class.active]="activeTab === 'dashboard'">
+        Dashboard
+      </li>
+      <li 
+        (click)="setTab('bookings')" 
+        [class.active]="activeTab === 'bookings'">
+        Bookings
+      </li>
+      <li 
+        (click)="setTab('spices')" 
+        [class.active]="activeTab === 'spices'">
+        Spices
+      </li>
+      <li 
+        (click)="setTab('users')" 
+        [class.active]="activeTab === 'users'">
+        Users
+      </li>
+
+      <li 
+        (click)="setTab('reports')" 
+        [class.active]="activeTab === 'reports'">
+        Reports
+      </li>
+
+      <li 
+        (click)="setTab('settings')" 
+        [class.active]="activeTab === 'settings'">
+        Settings
+      </li>
+      <li (click)="logout()">logout</li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <div class="top-bar">
+      <button class="toggle-btn" (click)="toggleSidebar()">☰</button>
+      <!-- <h1>{{ activeTab | titlecase }}</h1> -->
+    </div>
+
+    <!-- DASHBOARD -->
+    <section *ngIf="activeTab === 'dashboard'">
+      <div class="cards">
+        <div class="card">Total Bookings<br><strong>245</strong></div>
+        <div class="card">Active Users<br><strong>{{ ActiveUsers() }}</strong></div>
+        <div class="card">Available Spices<br><strong>42</strong></div>
+        <div class="card">Pending Orders<br><strong>16</strong></div>
+      </div>
+    </section>
+
+    <!-- BOOKINGS -->
+    <section *ngIf="activeTab === 'bookings'">
+      <h2>Manage Bookings</h2>
+      <p>View, approve, or cancel spice bookings.</p>
+    </section>
+
+    <!-- SPICES -->
+    <section *ngIf="activeTab === 'spices'">
+      <h2>Spice Inventory</h2>
+      <p>Add, update, or remove spices.</p>
+    </section>
+
+    <!-- USERS TAB -->
+<section *ngIf="activeTab === 'users'">
+  <div class="flex" style="display: flex;justify-content: space-between;">
+      <h2>User Management</h2>
+  <!-- ADD GUIDE BUTTON -->
+<button class="add-guide-btn" (click)="openGuideModal()">+ Register Guider</button>
+
+<!-- REGISTER GUIDE MODAL -->
+<div class="modal" *ngIf="showGuideModal">
+  <div class="modal-overlay" (click)="closeGuideModal()"></div>
+
+  <div class="modal-box">
+    <span class="close-btn" (click)="closeGuideModal()">×</span>
+
+    <h3>Register New Guide</h3>
+
+    <form (ngSubmit)="registerGuide()">
+      <input type="text" placeholder="Full Name" [(ngModel)]="guideData.name" name="name" required />
+      <input type="text" placeholder="Username" [(ngModel)]="guideData.username" name="username" required />
+      <input type="email" placeholder="Email" [(ngModel)]="guideData.email" name="email" required />
+      <input type="password" placeholder="Password" [(ngModel)]="guideData.password" name="password" required />
+
+      <button type="submit">Register Guide</button>
+    </form>
+  </div>
+  <div class="message success" *ngIf="guideSuccess">
+  {{ guideSuccess }}
+</div>
+
+<div class="message error" *ngIf="guideError">
+  {{ guideError }}
+</div>
+</div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Tours</th>
+          <th>Bookings</th>
+          <th>Reviews</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of users()">
+          <td>{{ user.id}}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ user.tours }}</td>
+          <td>{{ user.bookings }}</td>
+          <td>{{ user.reviews }}</td>
+          <td class="actions">
+            <button class="edit" >Edit</button>
+            <button class="delete" >Delete</button>
+          
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+    <!-- REPORTS -->
+    <section *ngIf="activeTab === 'reports'">
+      <h2>Reports & Analytics</h2>
+      <p>Track system performance and booking trends.</p>
+    </section>
+
+    <!-- SETTINGS -->
+    <section *ngIf="activeTab === 'settings'">
+      <h2>System Settings</h2>
+      <p>Configure platform settings.</p>
+    </section>
+
+  </main>
+</div>

@@ -1,0 +1,17 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  --spice-red: #c0392b;
+  --spice-orange: #e67e22;
+  --spice-green: #27ae60;
+  --dark: #1f1f1f;
+  --light: #f8f9fa;
+  --white: #ffffff;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: var(--light);
+  color: var(--dark);
+}
