@@ -1,11 +1,11 @@
-import { Tour } from "./tour.model";
-import { User } from "./user.model";
+import { User } from './user.model';
+import { Tour } from './tour.model';
 
-export class Review {
-  review_id!: number;
-  rating!: number;
-  comment!: string;
-  reviewDate!: string;
-  user!: User;
-  tour!: Tour;
+export interface Review {
+  review_id: number;
+  rating: number;
+  comment: string;
+  reviewDate: string; // or date string
+  user: User;
+  tour: Tour;
 }

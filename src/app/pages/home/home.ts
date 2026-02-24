@@ -1,178 +1,347 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgZone, OnInit } from '@angular/core';
-import { Router, RouterLink } from "@angular/router";
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+
 import { UserService } from '../../services/user-service';
 import { Role, User } from '../../model/user.model';
-import { FormsModule } from '@angular/forms';
+
+type SectionId = 'home' | 'about' | 'features' | 'booking' | 'contact';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule,FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home implements OnInit {
+export class Home implements OnInit, OnDestroy {
+
+  // ================= UI STATE =================
   menuOpen = false;
+  showLoginModal = false;
+  showRegisterModal = false;
+  activeSection: SectionId = 'home';
+  scrolled = false;
+
+  // ================= SLIDER =================
   currentSlide = 0;
-
-  /* ===== LOGIN MESSAGES ===== */
-  loginMessage = '';
-  loginError = '';
-
-  /* ===== REGISTER MESSAGES ===== */
-  registerMessage = '';
-  registerError = '';
+  private sliderTimer: any = null;
+  isHoveringHero = false;
 
   slides = [
     {
       title: 'Smart Spice Booking Platform',
-      text: 'Book premium-quality spices easily with our secure and reliable system.',
-      image: 'img/p1.jpg'
+      text: 'Book premium-quality spices and tours easily with a modern, reliable system.',
+      image: 'img/p1.jpg',
     },
     {
-      title: 'Fresh & Authentic Spices',
-      text: 'We connect you with trusted suppliers for guaranteed freshness.',
-      image: 'img/p2.jpg'
+      title: 'Fresh • Authentic • Trusted',
+      text: 'We connect you with verified suppliers and guides for a smooth experience.',
+      image: 'img/p2.jpg',
     },
     {
-      title: 'Fast • Secure • Reliable',
-      text: 'Experience a modern way of managing spice bookings.',
-      image: 'img/p3.jpg'
-    }
+      title: 'Fast Booking, Clear Status',
+      text: 'Manage bookings, track status, and review tours in one place.',
+      image: 'img/p3.jpg',
+    },
   ];
+
+  // ================= AUTH =================
+  loginData = {
+    username: '',
+    password: '',
+  };
+
+  registerData = {
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+  };
+
+  loginMessage = '';
+  loginError = '';
+  registerMessage = '';
+  registerError = '';
+
+  loginLoading = signal(false);
+  registerLoading = signal(false);
+
+  private sub = new Subscription();
 
   constructor(
     private ngZone: NgZone,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private el: ElementRef<HTMLElement>
   ) {}
 
-  ngOnInit() {
+  // ================= LIFECYCLE =================
+  ngOnInit(): void {
+    // Start slider
     this.ngZone.runOutsideAngular(() => {
-      setInterval(() => {
+      this.sliderTimer = setInterval(() => {
+        if (this.isHoveringHero) return;
         this.ngZone.run(() => this.nextSlide());
-      }, 5000);
+      }, 6000);
     });
+
+    // Detect active section on load
+    setTimeout(() => this.detectActiveSection(), 0);
   }
 
-  toggleMenu() {
+  ngOnDestroy(): void {
+    if (this.sliderTimer) clearInterval(this.sliderTimer);
+    this.sub.unsubscribe();
+    this.unlockBodyScroll();
+  }
+
+  // ================= NAVIGATION =================
+  toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
   }
 
-  nextSlide() {
+  closeMenu(): void {
+    this.menuOpen = false;
+  }
+
+  goToBookings(): void {
+    const user = this.getUser();
+
+    if (!user) {
+      this.openLogin();
+      return;
+    }
+
+    this.routeToDashboard(user);
+  }
+
+  private routeToDashboard(user: User): void {
+    if (user.role === Role.Admin) {
+      this.router.navigate(['/admin']);
+    } else if (user.role === Role.Guide) {
+      this.router.navigate(['/guide']);
+    } else {
+      this.router.navigate(['/tourist']);
+    }
+  }
+
+  scrollTo(section: SectionId): void {
+    this.closeMenu();
+
+    const target = this.el.nativeElement.querySelector(
+      `#${section}`
+    ) as HTMLElement | null;
+
+    if (!target) return;
+
+    target.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+
+  // ================= SLIDER CONTROLS =================
+  nextSlide(): void {
     this.currentSlide = (this.currentSlide + 1) % this.slides.length;
   }
 
-  prevSlide() {
+  prevSlide(): void {
     this.currentSlide =
       (this.currentSlide - 1 + this.slides.length) % this.slides.length;
   }
 
-  /* ================= LOGIN ================= */
-  loginData = {
-    username: '',
-    password: ''
-  };
+  setSlide(index: number): void {
+    this.currentSlide = index;
+  }
 
-  submitLogin() {
+  heroHover(isHovering: boolean): void {
+    this.isHoveringHero = isHovering;
+  }
+
+  // ================= MODALS =================
+  openLogin(): void {
+    this.resetMessages();
+    this.showRegisterModal = false;
+    this.showLoginModal = true;
+    this.lockBodyScroll();
+  }
+
+  openRegister(): void {
+    this.resetMessages();
+    this.showLoginModal = false;
+    this.showRegisterModal = true;
+    this.lockBodyScroll();
+  }
+
+  closeModals(): void {
+    this.showLoginModal = false;
+    this.showRegisterModal = false;
+    this.unlockBodyScroll();
+  }
+
+  private resetMessages(): void {
     this.loginMessage = '';
     this.loginError = '';
+    this.registerMessage = '';
+    this.registerError = '';
+  }
+
+  // ================= HOST LISTENERS =================
+  @HostListener('window:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.closeModals();
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth > 900) {
+      this.menuOpen = false;
+    }
+  }
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.scrolled = window.scrollY > 10;
+    this.detectActiveSection();
+  }
+
+  private detectActiveSection(): void {
+    const sections: SectionId[] = [
+      'home',
+      'about',
+      'features',
+      'booking',
+      'contact',
+    ];
+
+    const offset = 120;
+
+    for (const id of sections) {
+      const element = this.el.nativeElement.querySelector(
+        `#${id}`
+      ) as HTMLElement | null;
+
+      if (!element) continue;
+
+      const rect = element.getBoundingClientRect();
+
+      if (rect.top <= offset && rect.bottom > offset) {
+        this.activeSection = id;
+        break;
+      }
+    }
+  }
+
+  // ================= LOGIN =================
+  submitLogin(): void {
+    this.resetMessages();
 
     if (!this.loginData.username || !this.loginData.password) {
       this.loginError = 'Please enter both username and password.';
       return;
     }
 
-    this.userService.login(this.loginData).subscribe({
-      next: (user: User) => {
-        this.loginMessage = 'Welcome back! Redirecting to your dashboard...';
+    this.loginLoading.set(true);
 
-        localStorage.setItem('user', JSON.stringify(user));
+    const subscription = this.userService
+      .login(this.loginData)
+      .subscribe({
+        next: (user) => {
+          localStorage.setItem('user', JSON.stringify(user));
+          this.loginMessage = 'Welcome back! Redirecting...';
 
-        setTimeout(() => {
-          if (user.role === Role.Admin) {
-            this.router.navigate(['/admin']);
-          } else if (user.role === Role.Guide) {
-            this.router.navigate(['/guide']);
-          } else {
-            this.router.navigate(['/tourist']);
-          }
-          this.closeModals();
-        }, 1500);
-      },
-      error: () => {
-        this.loginError =
-          'Invalid username or password. Please try again.';
-      }
-    });
+          setTimeout(() => {
+            this.closeModals();
+            this.routeToDashboard(user);
+          }, 900);
+        },
+        error: (err) => {
+          const msg =
+            err?.error?.error ||
+            err?.error?.message ||
+            'Invalid username or password. Please try again.';
+
+          this.loginError = msg;
+        },
+        complete: () => this.loginLoading.set(false),
+      });
+
+    this.sub.add(subscription);
   }
 
-  /* ================= REGISTER ================= */
-  registerData: Partial<User> = {
-    name: '',
-    username: '',
-    email: '',
-    password: ''
-  };
+  // ================= REGISTER =================
+  submitRegister(): void {
+    this.resetMessages();
 
-  submitRegister() {
-    this.registerMessage = '';
-    this.registerError = '';
+    const { name, username, email, password } = this.registerData;
 
-    if (
-      !this.registerData.name ||
-      !this.registerData.username ||
-      !this.registerData.email ||
-      !this.registerData.password
-    ) {
+    if (!name || !username || !email || !password) {
       this.registerError = 'Please fill in all required fields.';
       return;
     }
 
-    this.userService.register(this.registerData).subscribe({
-      next: () => {
-        this.registerMessage =
-          'Account created successfully! You can now log in.';
+    this.registerLoading.set(true);
 
-        this.registerData = {
-          name: '',
-          username: '',
-          email: '',
-          password: ''
-        };
+    const subscription = this.userService
+      .register({ name, username, email, password })
+      .subscribe({
+        next: () => {
+          this.registerMessage =
+            'Account created successfully! Please login to continue.';
 
-        setTimeout(() => {
-          this.openLogin();
-        }, 1500);
-      },
-      error: (err) => {
-        if (err.status === 409) {
-          this.registerError =
-            'This username is already taken. Please choose another.';
-        } else {
-          this.registerError =
-            'Registration failed. Please try again.';
-        }
-      }
-    });
+          this.registerData = {
+            name: '',
+            username: '',
+            email: '',
+            password: '',
+          };
+
+          setTimeout(() => this.openLogin(), 900);
+        },
+        error: (err) => {
+          if (err?.status === 409) {
+            this.registerError =
+              'Username already exists. Choose another.';
+          } else {
+            const msg =
+              err?.error?.error ||
+              err?.error?.message ||
+              'Registration failed. Please try again.';
+
+            this.registerError = msg;
+          }
+        },
+        complete: () => this.registerLoading.set(false),
+      });
+
+    this.sub.add(subscription);
   }
 
-  /* ===== MODALS ===== */
-  showLoginModal = false;
-  showRegisterModal = false;
-
-  openLogin() {
-    this.showRegisterModal = false;
-    this.showLoginModal = true;
+  // ================= LOCAL STORAGE =================
+  private getUser(): User | null {
+    const raw = localStorage.getItem('user');
+    return raw ? (JSON.parse(raw) as User) : null;
   }
 
-  openRegister() {
-    this.showLoginModal = false;
-    this.showRegisterModal = true;
+  // ================= BODY SCROLL CONTROL =================
+  private lockBodyScroll(): void {
+    document.body.style.overflow = 'hidden';
   }
 
-  closeModals() {
-    this.showLoginModal = false;
-    this.showRegisterModal = false;
+  private unlockBodyScroll(): void {
+    document.body.style.overflow = '';
   }
 }

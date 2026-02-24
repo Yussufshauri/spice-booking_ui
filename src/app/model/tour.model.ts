@@ -1,19 +1,22 @@
-import { Review } from './review.model';
 import { User } from './user.model';
-
-export class Tour {
-  tour_id!: number;
-  name!: string;
-  description!: string;
-  price!: string;
-  location!: string;
-  status: Status = Status.Pending;
-  user!: User;
-  reviews!: Review[];
-}
 
 export enum Status {
   Pending = 'Pending',
+  Confirmed = 'Confirmed',
+  Completed = 'Completed',
+  Rejected = 'Rejected',
+  Canceled = 'Canceled',
   Approved = 'Approved',
-  Rejected = 'Rejected'
+}
+
+export interface Tour {
+  tour_id: number;
+  title: string;
+  description: string;
+  price: number | string;
+  location?: string;
+  status: Status;
+  date?: string;      // 'YYYY-MM-DD'
+  imageUrl?: string;  // '/uploads/...'
+  user?: User;        // wakati mwingine controller inaweza kuignore user - so optional
 }

@@ -1,162 +1,668 @@
-<div class="admin-container">
+<div class="layout">
 
   <!-- SIDEBAR -->
   <aside class="sidebar" [class.closed]="!sidebarOpen">
-    <div class="sidebar-header">
-      <h2>Admin Panel</h2>
+    <div class="side-top">
+      <div class="brand">
+        <div class="badge">SB</div>
+        <div class="txt" *ngIf="sidebarOpen">
+          <strong>Spice Booking</strong>
+          <span>Admin Panel</span>
+        </div>
+      </div>
+
+      <button class="icon-btn" (click)="toggleSidebar()" title="Toggle sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
     </div>
 
-    <ul class="menu">
-      <li 
-        (click)="setTab('dashboard')" 
-        [class.active]="activeTab === 'dashboard'">
-        Dashboard
-      </li>
-      <li 
-        (click)="setTab('bookings')" 
-        [class.active]="activeTab === 'bookings'">
-        Bookings
-      </li>
-      <li 
-        (click)="setTab('spices')" 
-        [class.active]="activeTab === 'spices'">
-        Spices
-      </li>
-      <li 
-        (click)="setTab('users')" 
-        [class.active]="activeTab === 'users'">
-        Users
-      </li>
+    <div class="profile" *ngIf="sidebarOpen">
+      <div class="avatar">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <div>
+        <div class="name">{{ currentUser?.name }}</div>
+        <div class="role">{{ currentUser?.role }}</div>
+      </div>
+    </div>
 
-      <li 
-        (click)="setTab('reports')" 
-        [class.active]="activeTab === 'reports'">
-        Reports
-      </li>
+    <nav class="menu">
+      <button (click)="setTab('dashboard')" [class.active]="activeTab==='dashboard'">
+        <i class="fa-solid fa-chart-line"></i>
+        <span *ngIf="sidebarOpen">Dashboard</span>
+      </button>
 
-      <li 
-        (click)="setTab('settings')" 
-        [class.active]="activeTab === 'settings'">
-        Settings
-      </li>
-      <li (click)="logout()">logout</li>
-    </ul>
+      <button (click)="setTab('bookings')" [class.active]="activeTab==='bookings'">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span *ngIf="sidebarOpen">Bookings</span>
+      </button>
+
+      <button (click)="setTab('tours')" [class.active]="activeTab==='tours'">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span *ngIf="sidebarOpen">Tours</span>
+      </button>
+
+      <button (click)="setTab('users')" [class.active]="activeTab==='users'">
+        <i class="fa-solid fa-users"></i>
+        <span *ngIf="sidebarOpen">Users</span>
+      </button>
+
+      <button (click)="setTab('reports')" [class.active]="activeTab==='reports'">
+        <i class="fa-solid fa-file-lines"></i>
+        <span *ngIf="sidebarOpen">Reports</span>
+      </button>
+
+      <button (click)="setTab('settings')" [class.active]="activeTab==='settings'">
+        <i class="fa-solid fa-gear"></i>
+        <span *ngIf="sidebarOpen">Settings</span>
+      </button>
+
+      <button (click)="setTab('chats')" [class.active]="activeTab==='chats'">
+        <i class="fa-solid fa-comments"></i>
+        <span *ngIf="sidebarOpen">Chats</span>
+      </button>
+
+      <button class="danger" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span *ngIf="sidebarOpen">Logout</span>
+      </button>
+    </nav>
   </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="content">
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="title">
+        <h1>{{ activeTab | titlecase }}</h1>
+        <p class="muted">Manage tours, users, bookings and system settings.</p>
+      </div>
 
-    <div class="top-bar">
-      <button class="toggle-btn" (click)="toggleSidebar()">☰</button>
-      <!-- <h1>{{ activeTab | titlecase }}</h1> -->
+      <div class="top-actions">
+        <button class="pill" (click)="loadAll()" title="Refresh">
+          <i class="fa-solid fa-rotate"></i>
+          <span>Refresh</span>
+        </button>
+
+        <button class="pill primary" *ngIf="activeTab==='tours'" (click)="openTourModal()" style="background: blue;">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add Tour</span>
+        </button>
+
+        <button class="pill primary" *ngIf="activeTab==='users'" (click)="openGuideModal()" style="background: blue;">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Register Guide</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- TOAST -->
+    <div class="toast" *ngIf="toastMsg()"
+         [class.success]="toastType()==='success'"
+         [class.error]="toastType()==='error'">
+      <i class="fa-solid fa-circle-info" *ngIf="toastType()==='info'"></i>
+      <i class="fa-solid fa-circle-check" *ngIf="toastType()==='success'"></i>
+      <i class="fa-solid fa-triangle-exclamation" *ngIf="toastType()==='error'"></i>
+      <span>{{ toastMsg() }}</span>
     </div>
 
     <!-- DASHBOARD -->
-    <section *ngIf="activeTab === 'dashboard'">
-      <div class="cards">
-        <div class="card">Total Bookings<br><strong>245</strong></div>
-        <div class="card">Active Users<br><strong>{{ ActiveUsers() }}</strong></div>
-        <div class="card">Available Spices<br><strong>42</strong></div>
-        <div class="card">Pending Orders<br><strong>16</strong></div>
+    <section *ngIf="activeTab==='dashboard'" class="grid">
+      <div class="card stat">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div>
+          <div class="label">Total Users</div>
+          <div class="value">{{ totalUsers() }}</div>
+        </div>
+      </div>
+
+      <div class="card stat">
+        <div class="stat-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+        <div>
+          <div class="label">Total Tours</div>
+          <div class="value">{{ totalTours() }}</div>
+        </div>
+      </div>
+
+      <div class="card stat">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+        <div>
+          <div class="label">Total Bookings</div>
+          <div class="value">{{ totalBookings() }}</div>
+        </div>
+      </div>
+
+      <div class="card stat">
+        <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+        <div>
+          <div class="label">Pending</div>
+          <div class="value">{{ pendingBookings() }}</div>
+        </div>
+      </div>
+
+      <div class="card wide">
+        <h3>Quick Actions</h3>
+        <div class="quick">
+          <button class="pill primary" (click)="setTab('tours'); openTourModal()">
+            <i class="fa-solid fa-plus"></i> Add Tour
+          </button>
+          <button class="pill" (click)="setTab('bookings')">
+            <i class="fa-solid fa-calendar-check"></i> Manage Bookings
+          </button>
+          <button class="pill" (click)="setTab('users')">
+            <i class="fa-solid fa-users"></i> Manage Users
+          </button>
+          <button class="pill" (click)="setTab('chats')">
+            <i class="fa-solid fa-comments"></i> Open Chats
+          </button>
+        </div>
       </div>
     </section>
 
-    <!-- BOOKINGS -->
-    <section *ngIf="activeTab === 'bookings'">
-      <h2>Manage Bookings</h2>
-      <p>View, approve, or cancel spice bookings.</p>
+    <!-- BOOKINGS TAB -->
+    <section *ngIf="activeTab==='bookings'" class="card">
+      <div class="section-head">
+        <h2>Manage Bookings</h2>
+
+        <div class="tools">
+          <input class="input" placeholder="Search booking/user/tour..." [(ngModel)]="qBookings" />
+          <select class="input" [(ngModel)]="bookingStatusFilter">
+            <option value="ALL">All Status</option>
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="loading" *ngIf="loadingBookings()">Loading bookings...</div>
+
+      <div class="table-wrap" *ngIf="!loadingBookings()">
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tour</th>
+            <th>User</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th style="width:320px;">Actions</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <tr *ngFor="let b of filteredBookings()">
+            <td>#{{ b.booking_id }}</td>
+            <td>{{ b.tour?.title }}</td>
+            <td>{{ b.user?.name }}</td>
+            <td>{{ b.date }}</td>
+
+            <td>
+              <span class="tag"
+                    [class.pending]="b.status===Status.Pending"
+                    [class.ok]="b.status===Status.Approved || b.status===Status.Confirmed || b.status===Status.Completed"
+                    [class.bad]="b.status===Status.Rejected || b.status===Status.Canceled">
+                {{ b.status }}
+              </span>
+            </td>
+
+            <td class="actions">
+              <button class="btn-sm ok" (click)="approveBooking(b.booking_id)">
+                <i class="fa-solid fa-check"></i> Approve
+              </button>
+
+              <button class="btn-sm bad" (click)="rejectBooking(b.booking_id)">
+                <i class="fa-solid fa-xmark"></i> Reject
+              </button>
+
+              <select class="mini" [ngModel]="b.status" (ngModelChange)="updateBookingStatus(b.booking_id, $event)">
+                <option *ngFor="let s of statuses" [ngValue]="s">{{ s }}</option>
+              </select>
+
+              <!-- ✅ NEW: DELETE BOOKING -->
+              <button class="btn-sm bad" (click)="deleteBooking(b.booking_id)" title="Delete booking">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div class="empty" *ngIf="filteredBookings().length===0">
+          No bookings found.
+        </div>
+      </div>
     </section>
 
-    <!-- SPICES -->
-    <section *ngIf="activeTab === 'spices'">
-      <h2>Spice Inventory</h2>
-      <p>Add, update, or remove spices.</p>
+    <!-- TOURS TAB -->
+    <section *ngIf="activeTab==='tours'" class="card">
+      <div class="section-head">
+        <h2>Manage Tours</h2>
+
+        <div class="tools">
+          <input class="input" placeholder="Search tour title/price/status..." style="background: #dcddd0;" [(ngModel)]="qTours" />
+          <button class="pill primary" (click)="openTourModal()">
+            <i class="fa-solid fa-plus"></i> Add Tour
+          </button>
+        </div>
+      </div>
+
+      <div class="loading" *ngIf="loadingTours()">Loading tours...</div>
+
+      <div class="grid-tours" *ngIf="!loadingTours()">
+        <div class="tour-card" *ngFor="let t of filteredTours()">
+          <div class="thumb" [style.backgroundImage]="'url(' + imgUrl(t) + ')'">
+            <div class="thumb-overlay"></div>
+
+              <span class="tag float"
+                [class.pending]="t.status===Status.Pending"
+                [class.ok]="t.status===Status.Approved || t.status===Status.Confirmed || t.status===Status.Completed"
+                [class.bad]="t.status===Status.Rejected || t.status===Status.Canceled">
+                {{ t.status }}
+              </span>
+            </div>
+
+          <div class="tour-body">
+            <div class="row">
+              <h3 class="title">{{ t.title }}</h3>
+              <div class="price">{{ t.price }}</div>
+            </div>
+
+            <p class="desc">{{ t.description }}</p>
+
+            <div class="row small">
+              <span><i class="fa-regular fa-calendar"></i> {{ t.date || '—' }}</span>
+              <span><i class="fa-regular fa-user"></i> {{ t.user?.name || '—' }}</span>
+            </div>
+
+            <div class="tour-actions">
+              <select class="input" [ngModel]="t.status" (ngModelChange)="updateTourStatus(t.tour_id, $event)">
+                <option *ngFor="let s of statuses" [ngValue]="s">{{ s }}</option>
+              </select>
+
+              <button class="pill" (click)="openTourDetails(t)" title="Details + Reviews">
+                <i class="fa-solid fa-circle-info"></i> Details
+              </button>
+
+              <button class="pill danger" (click)="deleteTour(t.tour_id)">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty" *ngIf="filteredTours().length===0">
+          No tours found.
+        </div>
+      </div>
     </section>
 
     <!-- USERS TAB -->
-<section *ngIf="activeTab === 'users'">
-  <div class="flex" style="display: flex;justify-content: space-between;">
-      <h2>User Management</h2>
-  <!-- ADD GUIDE BUTTON -->
-<button class="add-guide-btn" (click)="openGuideModal()">+ Register Guider</button>
+    <section *ngIf="activeTab==='users'" class="card">
+      <div class="section-head">
+        <h2>User Management</h2>
 
-<!-- REGISTER GUIDE MODAL -->
-<div class="modal" *ngIf="showGuideModal">
-  <div class="modal-overlay" (click)="closeGuideModal()"></div>
+        <div class="tools">
+          <input class="input" placeholder="Search name/username/email/role..." [(ngModel)]="qUsers" />
+          <button class="pill primary" (click)="openGuideModal()" style="background: blue;">
+            <i class="fa-solid fa-user-plus"></i> Register Guide
+          </button>
+        </div>
+      </div>
 
-  <div class="modal-box">
-    <span class="close-btn" (click)="closeGuideModal()">×</span>
+      <div class="loading" *ngIf="loadingUsers()">Loading users...</div>
 
-    <h3>Register New Guide</h3>
+      <div class="table-wrap" *ngIf="!loadingUsers()">
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th style="width:120px;">Action</th>
+          </tr>
+          </thead>
 
-    <form (ngSubmit)="registerGuide()">
-      <input type="text" placeholder="Full Name" [(ngModel)]="guideData.name" name="name" required />
-      <input type="text" placeholder="Username" [(ngModel)]="guideData.username" name="username" required />
-      <input type="email" placeholder="Email" [(ngModel)]="guideData.email" name="email" required />
-      <input type="password" placeholder="Password" [(ngModel)]="guideData.password" name="password" required />
+          <tbody>
+          <tr *ngFor="let u of filteredUsers()">
+            <td>#{{ u.user_id }}</td>
+            <td>{{ u.name }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              <span class="tag" [class.ok]="u.role===Role.Admin || u.role===Role.Guide"
+                            [class.pending]="u.role===Role.Tourist">
+                {{ u.role }}
+              </span>
+            </td>
+            <td class="actions">
+              <button class="btn-sm bad" (click)="deleteUser(u.user_id)">
+                <i class="fa-solid fa-trash"></i> Delete
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
 
-      <button type="submit">Register Guide</button>
-    </form>
-  </div>
-  <div class="message success" *ngIf="guideSuccess">
-  {{ guideSuccess }}
-</div>
-
-<div class="message error" *ngIf="guideError">
-  {{ guideError }}
-</div>
-</div>
-  </div>
-
-  <div class="table-wrapper">
-    <table class="user-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Tours</th>
-          <th>Bookings</th>
-          <th>Reviews</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let user of users()">
-          <td>{{ user.id}}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.role }}</td>
-          <td>{{ user.tours }}</td>
-          <td>{{ user.bookings }}</td>
-          <td>{{ user.reviews }}</td>
-          <td class="actions">
-            <button class="edit" >Edit</button>
-            <button class="delete" >Delete</button>
-          
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-
-    <!-- REPORTS -->
-    <section *ngIf="activeTab === 'reports'">
-      <h2>Reports & Analytics</h2>
-      <p>Track system performance and booking trends.</p>
+        <div class="empty" *ngIf="filteredUsers().length===0">
+          No users found.
+        </div>
+      </div>
     </section>
 
-    <!-- SETTINGS -->
-    <section *ngIf="activeTab === 'settings'">
-      <h2>System Settings</h2>
-      <p>Configure platform settings.</p>
+    <!-- REPORTS TAB -->
+    <section *ngIf="activeTab==='reports'" class="card">
+      <div class="section-head">
+        <h2>Reports</h2>
+        <button class="pill primary" (click)="exportReport()">
+          <i class="fa-solid fa-file-arrow-down"></i> Export
+        </button>
+      </div>
+
+      <div class="report-grid">
+        <div class="mini-card">
+          <h3>Summary</h3>
+          <p>Users: <b>{{ totalUsers() }}</b></p>
+          <p>Tours: <b>{{ totalTours() }}</b></p>
+          <p>Bookings: <b>{{ totalBookings() }}</b></p>
+        </div>
+
+        <div class="mini-card">
+          <h3>Notes</h3>
+          <p class="muted">This section can later generate PDF/Excel, or charts.</p>
+          <ul class="muted">
+            <li>Top booked tours</li>
+            <li>Booking trends</li>
+            <li>Guide performance</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section *ngIf="activeTab==='settings'" class="card">
+      <div class="section-head">
+        <h2>Settings</h2>
+        <button class="pill primary" (click)="saveSettings()">
+          <i class="fa-solid fa-floppy-disk"></i> Save
+        </button>
+      </div>
+
+      <div class="settings-grid">
+        <div class="mini-card">
+          <h3>System</h3>
+          <label class="set-row">
+            <span>Enable notifications</span>
+            <input type="checkbox" checked />
+          </label>
+          <label class="set-row">
+            <span>Auto refresh data</span>
+            <input type="checkbox" />
+          </label>
+        </div>
+
+        <div class="mini-card">
+          <h3>UI</h3>
+          <label class="set-row">
+            <span>Compact tables</span>
+            <input type="checkbox" />
+          </label>
+          <label class="set-row">
+            <span>Show status colors</span>
+            <input type="checkbox" checked />
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHATS TAB (CONNECTED) -->
+    <section *ngIf="activeTab==='chats'" class="card">
+      <div class="section-head">
+        <h2>Chats</h2>
+
+        <div class="tools">
+          <input class="input" placeholder="Search chats..." [(ngModel)]="chatSearch" />
+          <button class="pill" (click)="loadThreads()">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="chat-layout">
+        <aside class="chat-list">
+          <div class="loading" *ngIf="loadingThreads()">Loading chats...</div>
+
+          <div *ngFor="let t of filteredThreads()"
+               class="chat-item"
+               [class.active]="selectedThread?.thread_id===t.thread_id"
+               (click)="selectThread(t)">
+            <div class="c-ava"><i class="fa-solid fa-user"></i></div>
+            <div class="c-txt">
+              <strong>{{ t.title }}</strong>
+              <span>{{ t.lastMessage || 'No messages yet...' }}</span>
+            </div>
+            <div class="c-meta">
+              <span>{{ t.updatedAt ? (t.updatedAt | date:'shortTime') : '' }}</span>
+            </div>
+          </div>
+
+          <div class="empty" *ngIf="!loadingThreads() && filteredThreads().length===0">
+            No chats found.
+          </div>
+        </aside>
+
+        <div class="chat-box">
+          <div class="chat-top">
+            <div class="who">
+              <i class="fa-solid fa-comments"></i>
+              <div>
+                <strong>{{ selectedThread?.title || 'Select a chat' }}</strong>
+                <span class="muted" *ngIf="selectedThread">Connected</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-messages">
+            <div class="loading" *ngIf="loadingMessages()">Loading messages...</div>
+
+            <ng-container *ngIf="!loadingMessages()">
+              <div class="empty" *ngIf="!selectedThread">
+                Select a thread to view messages.
+              </div>
+
+              <div class="msg"
+                   *ngFor="let m of chatMessages()"
+                   [class.me]="m.senderId===currentUser?.user_id">
+                <div class="bubble">
+                  <div class="meta-line">
+                    <span class="sender" *ngIf="m.senderId!==currentUser?.user_id">{{ m.senderName || 'User' }}</span>
+                    <span class="time">{{ m.createdAt | date:'shortTime' }}</span>
+                  </div>
+                  <div>{{ m.text }}</div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+
+          <div class="chat-input">
+            <button class="icon-btn" title="Attach">
+              <i class="fa-solid fa-paperclip"></i>
+            </button>
+
+            <input class="input" placeholder="Type a message..."
+                   [(ngModel)]="chatInput"
+                   [disabled]="!selectedThread" />
+
+            <button class="pill primary" (click)="sendChat()" [disabled]="!selectedThread">
+              <i class="fa-solid fa-paper-plane"></i> Send
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
   </main>
+</div>
+
+<!-- ADD TOUR MODAL -->
+<div class="modal" *ngIf="showTourModal" (click)="closeTourModal()">
+  <div class="modal-box wide" (click)="$event.stopPropagation()">
+    <button class="x" (click)="closeTourModal()">×</button>
+
+    <h2>Add New Tour</h2>
+    <p class="muted">Upload image and provide tour details.</p>
+
+    <form (ngSubmit)="createTour()" class="form-grid">
+      <label>
+        Title
+        <input class="input" type="text" [(ngModel)]="tourForm.title" name="title" required />
+      </label>
+
+      <label>
+        Date
+        <input class="input" type="date" [(ngModel)]="tourForm.date" name="date" required />
+      </label>
+
+      <label>
+        Price
+        <input class="input" type="number" min="0" [(ngModel)]="tourForm.price" name="price" required />
+      </label>
+
+      <label>
+        Image
+        <input class="input" type="file" (change)="onTourImagePicked($event)" accept="image/*" required />
+      </label>
+
+      <label class="full">
+        Description
+        <textarea class="input area" rows="4" [(ngModel)]="tourForm.description" name="description" required></textarea>
+      </label>
+
+      <button class="pill primary full" type="submit" style="background: green;color: navy;">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Create Tour
+      </button>
+
+      <div class="message success" *ngIf="tourSuccess">{{ tourSuccess }}</div>
+      <div class="message error" *ngIf="tourError">{{ tourError }}</div>
+    </form>
+  </div>
+</div>
+
+<!-- REGISTER GUIDE MODAL -->
+<div class="modal" *ngIf="showGuideModal" (click)="closeGuideModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <button class="x" (click)="closeGuideModal()">×</button>
+
+    <h2>Register New Guide</h2>
+    <p class="muted">Create a guide account to post tours.</p>
+
+    <form (ngSubmit)="registerGuide()">
+      <label>
+        Full name
+        <input class="input" type="text" [(ngModel)]="guideData.name" name="name" required />
+      </label>
+
+      <label>
+        Username
+        <input class="input" type="text" [(ngModel)]="guideData.username" name="username" required />
+      </label>
+
+      <label>
+        Email
+        <input class="input" type="email" [(ngModel)]="guideData.email" name="email" required />
+      </label>
+
+      <label>
+        Password
+        <input class="input" type="password" [(ngModel)]="guideData.password" name="password" required />
+      </label>
+
+      <button class="pill primary full" type="submit" style="color: navy;">
+        <i class="fa-solid fa-user-plus primary"></i> Register Guide
+      </button>
+
+      <div class="message success" *ngIf="guideSuccess">{{ guideSuccess }}</div>
+      <div class="message error" *ngIf="guideError">{{ guideError }}</div>
+    </form>
+  </div>
+</div>
+
+<!-- TOUR DETAILS + REVIEWS MODAL -->
+<div class="modal" *ngIf="showTourDetailsModal" (click)="closeTourDetails()">
+  <div class="modal-box wide" (click)="$event.stopPropagation()">
+    <button class="x" (click)="closeTourDetails()">×</button>
+
+    <h2>Tour Details</h2>
+    <p class="muted">View tour information and manage reviews.</p>
+
+    <div class="details-grid" *ngIf="selectedTour as t">
+      <div class="details-cover" [style.backgroundImage]="'url(' + imgUrl(t) + ')'"></div>
+
+      <div class="details-info">
+        <div class="d-row">
+          <h3 class="d-title">{{ t.title }}</h3>
+          <span class="tag"
+                [class.pending]="t.status===Status.Pending"
+                [class.ok]="t.status===Status.Approved || t.status===Status.Confirmed || t.status===Status.Completed"
+                [class.bad]="t.status===Status.Rejected || t.status===Status.Canceled">
+            {{ t.status }}
+          </span>
+        </div>
+
+        <p class="muted">{{ t.description }}</p>
+
+        <div class="d-meta">
+          <span><i class="fa-regular fa-calendar"></i> {{ t.date || '—' }}</span>
+          <span><i class="fa-solid fa-tag"></i> {{ t.price }}</span>
+          <span><i class="fa-regular fa-user"></i> {{ t.user?.name || '—' }}</span>
+        </div>
+
+        <div class="d-actions">
+          <select class="input" [ngModel]="t.status" (ngModelChange)="updateTourStatus(t.tour_id, $event)">
+            <option *ngFor="let s of statuses" [ngValue]="s">{{ s }}</option>
+          </select>
+
+          <button class="pill danger" (click)="deleteTour(t.tour_id)">
+            <i class="fa-solid fa-trash"></i> Delete Tour
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="line" />
+
+    <div class="reviews-head">
+      <h3>Reviews</h3>
+      <button class="pill" *ngIf="selectedTour" (click)="loadReviewsForTour(selectedTour.tour_id)">
+        <i class="fa-solid fa-rotate"></i> Refresh
+      </button>
+    </div>
+
+    <div class="loading" *ngIf="loadingReviews()">Loading reviews...</div>
+
+    <div class="reviews-list" *ngIf="!loadingReviews()">
+      <div class="review-card" *ngFor="let r of tourReviews()">
+        <div class="r-top">
+          <div>
+            <strong>{{ r.user?.name || 'Tourist' }}</strong>
+            <span class="stars">
+              <i class="fa-solid fa-star" *ngFor="let _ of [].constructor(r.rating)"></i>
+            </span>
+          </div>
+
+          <button class="btn-sm bad" (click)="deleteReview(r.review_id)">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+
+        <p class="r-text">{{ r.comment }}</p>
+        <div class="muted r-date">{{ r.reviewDate }}</div>
+      </div>
+
+      <div class="empty" *ngIf="tourReviews().length===0">
+        No reviews for this tour.
+      </div>
+    </div>
+
+  </div>
 </div>

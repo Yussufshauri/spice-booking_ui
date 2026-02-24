@@ -1,13 +1,12 @@
-import { User } from "./user.model";
+import { Tour, Status } from './tour.model';
+import { User } from './user.model';
 
-export class Booking {
-  booking_id!: number;
-  user!: User;
-  date!: string;
-  status!: Status;
+export interface Booking {
+  booking_id: number;
+  user: User;
+  tour: Tour;
+  date: string;
+  status: Status;
 }
-export enum Status {
-  Pending = 'Pending',
-  Approved = 'Approved',
-  Rejected = 'Rejected'
-}
+
+export { Status };

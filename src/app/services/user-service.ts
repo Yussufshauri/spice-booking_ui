@@ -1,53 +1,34 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { User } from '../model/user.model';
 import { Observable } from 'rxjs';
+import { API } from '../api/api.config';
+import { User } from '../model/user.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
-  private userApi = 'https://spice-backend-production.up.railway.app/api/user';
-
   constructor(private http: HttpClient) {}
 
-  // =========================
-  // GET ALL USERS
-  // =========================
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.userApi);
+    return this.http.get<User[]>(API.user);
   }
 
-  // =========================
-  // REGISTER
-  // =========================
-  register(user: Partial<User>) {
-    return this.http.post<User>(`${this.userApi}/register`, user);
-  }
-  
-  // REGISTER GUIDE (ADMIN ONLY)
-  registerGuide(user: Partial<User>) {
-    return this.http.post<User>(`${this.userApi}/register-guide`, user);
+  register(payload: { name: string; username: string; email: string; password: string }): Observable<User> {
+    return this.http.post<User>(`${API.user}/register`, payload);
   }
 
-  // =========================
-  // LOGIN
-  // =========================
-  login(credentials: { username: string; password: string }): Observable<User> {
-    return this.http.post<User>(`${this.userApi}/login`, credentials);
+  registerGuide(payload: { name: string; username: string; email: string; password: string }): Observable<User> {
+    return this.http.post<User>(`${API.user}/register-guide`, payload);
   }
 
-  // =========================
-  // UPDATE USER
-  // =========================
-  updateUser(user_id: number, user: User): Observable<User> {
-    return this.http.put<User>(`${this.userApi}/${user_id}`, user);
+  login(payload: { username: string; password: string }): Observable<User> {
+    return this.http.post<User>(`${API.user}/login`, payload);
   }
 
-  // =========================
-  // DELETE USER
-  // =========================
+  updateUser(user_id: number, payload: Partial<User> & { password?: string }): Observable<User> {
+    return this.http.put<User>(`${API.user}/${user_id}`, payload);
+  }
+
   deleteUser(user_id: number): Observable<any> {
-    return this.http.delete(`${this.userApi}/${user_id}`);
+    return this.http.delete(`${API.user}/${user_id}`);
   }
 }

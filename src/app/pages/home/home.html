@@ -1,30 +1,40 @@
 <!-- NAVBAR -->
-<header class="navbar">
+<header class="navbar" [class.scrolled]="scrolled">
   <div class="nav-container">
-    <div class="logo">
-      <img src="img/logo.png" alt="Yussuf Spice Booking">
-      
-    </div>
+    <a class="brand" (click)="scrollTo('home')" aria-label="Go to home">
+      <img class="logo" src="img/logo.png" alt="Yussuf Spice Booking" />
+      <div class="brand-text">
+        <strong>Yussuf Spice</strong>
+        <span>Booking</span>
+      </div>
+    </a>
 
-    <div class="menu-toggle" (click)="toggleMenu()">☰</div>
+    <button class="menu-toggle" type="button" (click)="toggleMenu()" aria-label="Toggle menu">
+      ☰
+    </button>
 
-    <nav [class.open]="menuOpen">
-      <a href="#">Home</a>
-      <a href="#about">About</a>
-      <a href="#service">service</a>
-      <a href="#">Bookings</a>
-      <a href="#">Contact</a>
+    <nav class="nav" [class.open]="menuOpen">
+      <a (click)="scrollTo('home')" [class.active]="activeSection==='home'">Home</a>
+      <a (click)="scrollTo('about')" [class.active]="activeSection==='about'">About</a>
+      <a (click)="scrollTo('features')" [class.active]="activeSection==='features'">Services</a>
+      <a (click)="goToBookings()">Bookings</a>
+      <a (click)="scrollTo('contact')" [class.active]="activeSection==='contact'">Contact</a>
 
-      <div class="login">
-        <a (click)="openLogin()">login</a>
+      <div class="nav-actions">
+        <button class="btn ghost" type="button" (click)="openLogin()">Login</button>
+        <button class="btn" style="background: blue;color: #fff;" type="button" (click)="openRegister()">Register</button>
       </div>
     </nav>
   </div>
 </header>
 
-
-<!-- HERO CAROUSEL -->
-<section class="hero">
+<!-- HERO -->
+<section
+  class="hero"
+  id="home"
+  (mouseenter)="heroHover(true)"
+  (mouseleave)="heroHover(false)"
+>
   <div
     class="slide"
     *ngFor="let slide of slides; let i = index"
@@ -32,157 +42,223 @@
     [style.backgroundImage]="'url(' + slide.image + ')'"
   >
     <div class="overlay">
-      <h1>{{ slide.title }}</h1>
-      <p>{{ slide.text }}</p>
-       <a href="#booking"><button>Start Booking</button></a>
+      <div class="hero-content">
+        <h1>{{ slide.title }}</h1>
+        <p>{{ slide.text }}</p>
+
+        <div class="hero-actions">
+          <button class="btn primary" type="button" (click)="scrollTo('booking')">
+            Start Booking
+          </button>
+          <button class="btn ghost" type="button" (click)="scrollTo('about')">
+            Learn More
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="controls">
-    <span (click)="prevSlide()">‹</span>
-    <span (click)="nextSlide()">›</span>
+  <!-- Controls -->
+  <button class="hero-control left" type="button" (click)="prevSlide()" aria-label="Previous slide">‹</button>
+  <button class="hero-control right" type="button" (click)="nextSlide()" aria-label="Next slide">›</button>
+
+  <!-- Dots -->
+  <div class="dots" aria-label="Slide indicators">
+    <button
+      class="dot"
+      *ngFor="let _ of slides; let i = index"
+      [class.active]="i === currentSlide"
+      (click)="setSlide(i)"
+      type="button"
+      [attr.aria-label]="'Go to slide ' + (i + 1)"
+    ></button>
   </div>
 </section>
 
 <!-- ABOUT -->
-<section class="about" id="about">
-  <h2>About Yussuf Spice Booking</h2>
-  <p>
-    Yussuf Spice Booking is a professional digital platform designed to simplify
-    spice reservations and supplier connections. We ensure quality, transparency,
-    and efficiency in every booking.
-  </p>
-</section>
+<section class="section about" id="about">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>About Yussuf Spice Booking</h2>
+      <p>
+        A modern platform for spice tours and bookings in Zanzibar — simple, transparent, and efficient.
+      </p>
+    </div>
 
-<!-- FEATURES -->
-<section class="features">
-  <div class="card">
-    <h3>Easy Booking</h3>
-    <p>Reserve spices quickly using our simple booking process.</p>
-  </div>
-
-  <div class="card">
-    <h3>Premium Quality</h3>
-    <p>Only verified suppliers and authentic spices.</p>
-  </div>
-
-  <div class="card">
-    <h3>Secure Platform</h3>
-    <p>Safe and reliable system for all transactions.</p>
-  </div>
-
-  <div class="card">
-    <h3>Customer Support</h3>
-    <p>We are always ready to help you.</p>
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>Trusted Experience</h3>
+        <p>We work with verified guides and suppliers to ensure quality service.</p>
+      </div>
+      <div class="about-card">
+        <h3>Clear Status</h3>
+        <p>Track booking status: Pending, Approved, Rejected, Confirmed, Completed.</p>
+      </div>
+      <div class="about-card">
+        <h3>Fast Support</h3>
+        <p>Get help quickly when you need it — simple and friendly.</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta" id="#booking">
-  <h2>Book Your Spices With Confidence</h2>
-  <button>Get Started Now</button>
+<!-- FEATURES / SERVICES -->
+<section class="section features" id="features">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Services</h2>
+      <p>Everything you need for quick booking and smooth tours.</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">⚡</div>
+        <h3>Easy Booking</h3>
+        <p>Reserve tours quickly using a clean, simple booking flow.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">✅</div>
+        <h3>Verified Guides</h3>
+        <p>Guides are registered by Admin — so you get trusted support.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">🗓️</div>
+        <h3>Schedule Tours</h3>
+        <p>Choose dates and manage your plan without confusion.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">⭐</div>
+        <h3>Reviews</h3>
+        <p>Leave feedback and ratings to help improve service quality.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING CTA -->
+<section class="section cta" id="booking">
+  <div class="wrap cta-box">
+    <div>
+      <h2>Book with confidence</h2>
+      <p>Create an account, login, and start booking tours in minutes.</p>
+    </div>
+
+    <div class="cta-actions">
+      <button class="btn primary" type="button" (click)="openRegister()">Create Account</button>
+      <button class="btn ghost" type="button" (click)="openLogin()">Login</button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section contact" id="contact">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Contact</h2>
+      <p>Need help? Reach us anytime.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Phone</h3>
+        <p>+255 777 776 186</p>
+      </div>
+      <div class="contact-card">
+        <h3>Email</h3>
+        <p>support@yussufspicebooking.com</p>
+      </div>
+      <div class="contact-card">
+        <h3>Location</h3>
+        <p>Zanzibar, Tanzania</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- FOOTER -->
-<footer>
-  <p>© 2026 Yussuf Spice Booking. All rights reserved.</p>
+<footer class="footer" style="text-align: center;background: #e2e2e2;">
+  <p style="color: rgba(44, 43, 43, 0.904);">© 2026 Yussuf Spice Booking. All rights reserved.</p>
 </footer>
 
-
 <!-- LOGIN MODAL -->
-<div class="modal" *ngIf="showLoginModal">
-  <div class="modal-content">
-    <span class="close" (click)="closeModals()">×</span>
+<div class="modal" *ngIf="showLoginModal" (click)="closeModals()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <button class="x" type="button" (click)="closeModals()" aria-label="Close">×</button>
+
     <h2>Login</h2>
+    <p class="muted">Welcome back — continue to your dashboard.</p>
 
     <form (ngSubmit)="submitLogin()">
-      <input
-        type="text"
-        placeholder="Username"
-        [(ngModel)]="loginData.username"
-        name="username"
-        required
-      />
+      <label>
+        Username
+        <input type="text" [(ngModel)]="loginData.username" name="username" required />
+      </label>
 
-      <input
-        type="password"
-        placeholder="Password"
-        [(ngModel)]="loginData.password"
-        name="password"
-        required
-      />
+      <label>
+        Password
+        <input type="password" [(ngModel)]="loginData.password" name="password" required />
+      </label>
 
-      <button type="submit">Login</button>
+      <button class="btn primary full" style="background: green;color: #fff;" type="submit" [disabled]="loginLoading()">
+        <span *ngIf="!loginLoading()">Login</span>
+        <span *ngIf="loginLoading()">Logging in...</span>
+      </button>
     </form>
 
-    <p>
-      Don't have an account?
+    <div class="message success" *ngIf="loginMessage">{{ loginMessage }}</div>
+    <div class="message error" *ngIf="loginError">{{ loginError }}</div>
+
+    <p class="switch">
+      Don’t have an account?
       <a (click)="openRegister()">Register</a>
     </p>
-    <div class="message success" *ngIf="loginMessage">
-  {{ loginMessage }}
-</div>
-
-<div class="message error" *ngIf="loginError">
-  {{ loginError }}
-</div>
   </div>
 </div>
 
-
 <!-- REGISTER MODAL -->
-<div class="modal" *ngIf="showRegisterModal">
-  <div class="modal-content">
-    <span class="close" (click)="closeModals()">×</span>
-    <h2>Register</h2>
+<div class="modal" *ngIf="showRegisterModal" (click)="closeModals()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <button class="x" type="button" (click)="closeModals()" aria-label="Close">×</button>
+
+    <h2>Create account</h2>
+    <p class="muted">Join and start booking tours.</p>
 
     <form (ngSubmit)="submitRegister()">
-      <input
-        type="text"
-        placeholder="Full Name"
-        [(ngModel)]="registerData.name"
-        name="name"
-        required
-      />
+      <label>
+        Full name
+        <input type="text" [(ngModel)]="registerData.name" name="name" required />
+      </label>
 
-      <input
-        type="text"
-        placeholder="Username"
-        [(ngModel)]="registerData.username"
-        name="username"
-        required
-      />
+      <label>
+        Username
+        <input type="text" [(ngModel)]="registerData.username" name="username" required />
+      </label>
 
-      <input
-        type="email"
-        placeholder="Email"
-        [(ngModel)]="registerData.email"
-        name="email"
-        required
-      />
+      <label>
+        Email
+        <input type="email" [(ngModel)]="registerData.email" name="email" required />
+      </label>
 
-      <input
-        type="password"
-        placeholder="Password"
-        [(ngModel)]="registerData.password"
-        name="password"
-        required
-      />
+      <label>
+        Password
+        <input type="password" [(ngModel)]="registerData.password" name="password" required />
+      </label>
 
-      <button type="submit">Register</button>
+      <button class="btn primary full" type="submit" [disabled]="registerLoading()">
+        <span *ngIf="!registerLoading()">Register</span>
+        <span *ngIf="registerLoading()">Creating...</span>
+      </button>
     </form>
 
-    <p>
+    <div class="message success" *ngIf="registerMessage">{{ registerMessage }}</div>
+    <div class="message error" *ngIf="registerError">{{ registerError }}</div>
+
+    <p class="switch">
       Already have an account?
       <a (click)="openLogin()">Login</a>
     </p>
-    <div class="message success" *ngIf="registerMessage">
-  {{ registerMessage }}
-</div>
-<div class="message error" *ngIf="registerError">
-  {{ registerError }}
-</div>
   </div>
 </div>
-
-
