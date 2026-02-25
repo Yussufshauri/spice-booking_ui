@@ -124,7 +124,7 @@ export class GuiderDashboard implements OnInit {
     if (String(img).startsWith('http')) return String(img);
 
     // backend serves /uploads/** (e.g. /uploads/xxx.jpg)
-    return `http://localhost:8080${img}`;
+    return `https://spice-backend-production-a3a0.up.railway.app/${img}`;
   }
 
   // =========================
